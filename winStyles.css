@@ -1,0 +1,86 @@
+.win-modalWin_ {
+    position: absolute;
+    /* z-index: 2; */
+    border-bottom: solid 2px rgba(37, 37, 37, 0.688);
+    border-left: solid 1px rgba(37, 37, 37, 0.688);
+    border-radius: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+
+    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+
+.win-shadow_ {
+    top: 0;
+    left: 0;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    /* z-index: 1; */
+    background-color: black;
+    opacity: 0;
+    /* outline: solid 10px black; */
+}
+
+.win-content {
+    margin: 10% 5% 8%;
+}
+
+.win-textMessage {
+    /* position: absolute; */
+    text-align: center;
+    margin-bottom: 5%;
+    /* left: 50%; */
+    /* width: 80%; */
+    /* transform: translateX(-50%) translateY(-50%); */
+}
+
+.win-entryField {
+    /* margin-top: 40px; */
+    /* font-size: 1.6vw; */
+    background-color: rgba(0, 0, 0, 0.04);
+    padding: 8px 20px;
+    width: 70%;
+    border: 1px solid rgba(0, 0, 0, 0.185);
+    border-radius: 15px;
+    outline: none;
+    box-sizing: border-box;
+    margin-bottom: 5%;
+}
+
+.win-button {
+    box-sizing: border-box;
+    padding: 0.7% 0.7%;
+    border: none;
+    border-bottom: solid 2px black;
+    border-radius: 5px;
+    text-shadow: 0 0 4px black;
+    margin: 3% 3% 3% 3%;
+}
+
+.win-button:hover {
+    opacity: 0.85;
+}
+
+.win-button:active {
+    opacity: 0.7;
+}
+
+.win-unselectable_, button {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -khtml-user-select: none;    /* Konqueror */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+    user-select: none;           /* Non-prefixed version, currently
+                                    not supported by any browser */
+}
+
+.win-selectable_ {
+    -webkit-touch-callout: all; /* iOS Safari */
+    -webkit-user-select: all;   /* Chrome/Safari/Opera */
+    -khtml-user-select: all;    /* Konqueror */
+    -moz-user-select: all;      /* Firefox */
+    -ms-user-select: all;       /* Internet Explorer/Edge */
+    user-select: all;           /* Non-prefixed version, currently
+                                    not supported by any browser */
+}
