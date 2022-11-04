@@ -57,7 +57,7 @@ createElem.onclick = function() {
   textArea.style.overflow = 'auto';
   textArea.classList.add('pretty-scroll');
 
-  // добавить заполнитель
+  // add placeholder
   const placeholder = 'Заметка...';
 
   textArea.textContent === '' && (textArea.textContent = placeholder);
@@ -113,21 +113,22 @@ createElem.onclick = function() {
       let elem = formatBarFuncs[name](container);
 
       if (elem) {
-        if (elem instanceof Promise) {
-          elem.then(result => {
-            if (!result) {
-              let removeElem = textArea.querySelector(('[data-del]'));
-              
-              removeElem.replaceWith(removeElem.textContent);
-              return;
-            }
+        if (elem.wrapperElem) {
+          let {wrapperElem, submitButton, cancelField, attributes} = elem;
 
-            for (let prop of Object.keys(result[1])){
-              result[0][prop] = result[1][prop];
+          submitButton.addEventListener('click', function() {
+            if (submitButton.callEvent) {
+              for (let name of Object.keys(attributes)) {
+                wrapperElem[name] = attributes[name];
+              }
             }
-
-            result[0].removeAttribute('data-del');
-          })
+          });
+          
+          cancelField.addEventListener('click', function() {
+            if (cancelField.callEvent) {
+              wrapperElem.replaceWith(wrapperElem.textContent);
+            }
+          });
         } else {
           wrapSelectedText(elem, textArea);
         }
@@ -167,7 +168,7 @@ createElem.onclick = function() {
   win.align();
 }
 
-// форматирование текста
+// text formatting
 class FormatBar {
   constructor(textArea, textColor, backgroundColor) {
     this.textArea = textArea;
@@ -195,18 +196,58 @@ class FormatBar {
   }
 
   link() {
-    let promise = this.getUrl_().then(result => {
-      if (result) {
-        this.arr[1] = {
-          href: result
-        }
-        return this.arr;
+   let win = new ModalWin();
+
+    win.createWindow(30, false, 'white', true);
+
+    let url = win.textInput('', 'Введите url');
+
+    let submitButton = win.submitButton('ок');
+
+    submitButton.style.padding = ' 0.7% 6% 0.7%';
+    win.winContent.style.marginBottom = '1px';
+
+    // if true call final handler
+    submitButton.callEvent = false;
+    win.darkLayer.callEvent = false;
+
+    win.align();
+
+    let a = document.createElement('a');
+
+    wrapSelectedText(a, this.textArea);
+
+    submitButton.addEventListener('click', function() {
+      if (url.value) {
+        win.delWindow();
+        a.href = url.value;
+        submitButton.callEvent = true;
       } else {
-        return false;
+        url.classList.add('shake');
+        url.style.borderColor = 'rgba(255, 0, 0, 0.6)';
+        url.style.backgroundColor = 'white';
+
+        setTimeout(() => {
+          url.classList.remove('shake');
+          url.style.borderColor = '';
+          url.style.backgroundColor = '';
+        }, 200);
       }
     });
-  
-   return promise;
+
+    win.darkLayer.onclick = () => {
+      win.delWindow();
+      win.darkLayer.callEvent = true;
+    }
+
+    return {
+      wrapperElem: a,
+      submitButton: submitButton,
+      cancelField: win.darkLayer,
+      attributes: {
+        target: '_blank'
+      }
+    }
   }
 
   letterColor() {
@@ -235,55 +276,6 @@ class FormatBar {
 
   changeBackgroundColor(color) {
     this.backgroundCol = color;
-  }
-
-  getUrl_() {
-    let win = new ModalWin();
-
-    win.createWindow(30, false, 'white', true);
-
-    let url = win.textInput('', 'Введите url');
-
-    let submitButton = win.submitButton('ок');
-
-    submitButton.style.padding = ' 0.7% 6% 0.7%';
-    win.winContent.style.marginBottom = '1px';
-
-    win.align();
-
-    let a = document.createElement('a');
-
-    a.target = '_blank';
-    a.setAttribute('data-del', true);
-
-    wrapSelectedText(a, this.textArea);
-    this.arr = [a, {}];
-
-    return new Promise(function(resolve) {
-      submitButton.onclick = () => {
-        if (url.value) {
-          win.delWindow();
-  
-          resolve(url.value);
-        }
-  
-        url.classList.add('shake');
-        url.style.borderColor = 'rgba(255, 0, 0, 0.6)';
-        url.style.backgroundColor = 'white';
-  
-        setTimeout(() => {
-          url.classList.remove('shake');
-          url.style.borderColor = '';
-          url.style.backgroundColor = '';
-        }, 200);
-      };
-  
-      win.darkLayer.onclick = () => {
-        win.delWindow();
-  
-        resolve(false);
-      }
-    })
   }
 }
 
@@ -346,7 +338,7 @@ function clearWrap(parentElement) {
   range.insertNode(selectionContents);
 }
 
-// получить координаты относительно документа
+// get coordinates relative to document
 function getCoords(elem) {
   let box = elem.getBoundingClientRect();
 

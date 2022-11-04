@@ -7,10 +7,10 @@ export class ModalWin {
     }
 
     this.shadow(opacity, overflow);
-    // список функций для обработки изменения размера окна браузера
+    // list of functions to handle resizing of the browser window
     this.functionsOnResize = [];
 
-    // вызов всех функций массива
+    // calling all array functions
     this.OnResize = () => {
       for (let func of this.functionsOnResize) {
         func();
@@ -18,14 +18,14 @@ export class ModalWin {
     }
     window.addEventListener('resize', this.OnResize);
 
-    // содержимое окна
+    // window content
     let winContent = document.createElement('div');
 
     winContent.className = 'win-content';
     this.winContent = winContent;
   }
 
-  // добавить темный слой
+  // add dark layer
   shadow(opacity, overflow) {
     let darkLayer = document.createElement('div');
     darkLayer.className = 'win-shadow_';
@@ -36,7 +36,7 @@ export class ModalWin {
     document.body.prepend(darkLayer);
     
     let i = 0;
-    // анимация затемнения
+    // fade animation
     let timerId = setInterval(() => {
       i += 0.02;
       if (i > opacity) clearInterval(timerId);
@@ -45,7 +45,7 @@ export class ModalWin {
     }, 15);
   }
 
-  // создать пустое всплывающее окно
+  // create empty popup
   createWindow(width=50, height=false, background='white', dragAndDrop=false) {
     let win = document.createElement('div');
 
@@ -56,7 +56,7 @@ export class ModalWin {
     document.body.append(win);
     win.append(this.winContent);
 
-    // запретить выделение всех елементов за пределами окна
+    // prevent selection of all elements outside the window
     document.body.classList.add('win-unselectable_');
     win.classList.add('win-selectable_');
     
@@ -65,7 +65,7 @@ export class ModalWin {
 
     this.win = win;
     
-    // центрирование модального окна при изменении размера окна браузера
+    // center modal window when browser window is resized
     let centerAlign = () => {
       let winHeight = document.documentElement.clientHeight;
       let winWidth = document.documentElement.clientWidth;
@@ -76,12 +76,12 @@ export class ModalWin {
 
     this.functionsOnResize.push(centerAlign);
 
-    // перемещение мышью
+    // drag and drop
     if (dragAndDrop) {
       let mouseDown = false;
 
       win.onmousedown = function(event) {
-        // если мышь нажата на содержимом окна, отменяем перетаскивание
+        // if the mouse is pressed on the contents of the window, cancel the drag
         if (event.target != win) return;
 
         mouseDown = true;
@@ -101,11 +101,11 @@ export class ModalWin {
         function onMouseMove(event) {
           moveAt(event.pageX, event.pageY);
         }
-        
-        // перенос окна по движению мыши
+
+        // move window by mouse movement
         document.addEventListener('mousemove', onMouseMove);
 
-        // отпустить окно и удалить обработчики
+        // release window and remove handlers
         document.addEventListener("mouseup", onMouseUp);
 
         function onMouseUp() {
@@ -160,7 +160,7 @@ export class ModalWin {
         }
       }
       
-      // удалить браузерный dragAndDrop
+      // remove browser drag and drop
       win.ondragstart = function() {
         return false;
       };
@@ -169,7 +169,7 @@ export class ModalWin {
     return win;
   }
 
-  // удалить окно
+  // remove popup
   delWindow() {
     ModalWin.zIndex -= 2;
     document.body.style.overflow = 'visible';
@@ -179,7 +179,7 @@ export class ModalWin {
     this.win.remove();
   }
 
-  // текстовый блок
+  // text block
   textContent(text, index=1.5) {
     let textMessage = document.createElement('div');
 
@@ -192,7 +192,7 @@ export class ModalWin {
     return textMessage;
   }
 
-  // добавить запрос ввода текста
+  // add text input prompt
   textInput(defaultValue='', placeholder='', index=2.9) {
     let entryField = document.createElement('input');
     entryField.className = 'win-entryField';
@@ -202,7 +202,7 @@ export class ModalWin {
 
     this.winContent.append(entryField);
 
-    // добавить анимации при событиях мыши
+    // add animations on mouse events
     let anim = new MouseEventAnimation(entryField);
     anim.onMouseOver();
     anim.onMouseOut();
@@ -214,7 +214,7 @@ export class ModalWin {
     return entryField;
   }
 
-  // создать кнопку
+  // create button
   createButton(text, background, textColor, newContainer, index) {
     if (newContainer || !this.buttonsContainer) {
       let buttonsContainer = document.createElement('div');
@@ -236,17 +236,17 @@ export class ModalWin {
     return button;
   }
 
-  // создать кнопку подтверждения действия
+  // create a submit button
   submitButton(text='submit', background='green', textColor='white', newContainer=false, index=2) {
     return this.createButton(text, background, textColor, newContainer, index);
   }
 
-  // создать кнопку отмены действия
+  // create a cancel button
   cancelButton(text='cancel', background='red', textColor='white', newContainer=false, index=2) {
     return this.createButton(text, background, textColor, newContainer, index);
   }
 
-  // добавить пользовательский элемент, применив к нему формулу масштабирования
+  // add a custom element by applying a scaling formula to it
   addElement(elem, index=2) {
     elem.addEventListener('input', this.OnResize);
     
@@ -254,7 +254,7 @@ export class ModalWin {
     this.changeFontSize(elem, index);
   }
 
-  // формула масштабирования текста
+  // text scaling formula
   changeFontSize(elem, index) {
     let func = () => {
       elem.style.fontSize = Math.round(
@@ -266,13 +266,12 @@ export class ModalWin {
     this.functionsOnResize.push(func);
   }
   
-  // выровнять окно и масштабировать все текстовые блоки в конце
+  // align window and scale all textblocks at the end
   align() {
     this.OnResize();
   }
 }
 
-// анимации событий мыши
 export class MouseEventAnimation {
   constructor(elem, startDelay=0, delay=25, minOpacity=0.04, maxOpacity=0.07) {
     this.minOpacity = this.opacityIndex = minOpacity;

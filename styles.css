@@ -136,28 +136,37 @@ textarea {
 }
 
 .pretty-scroll::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
 }
 
 /* Track */
 .pretty-scroll::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    box-shadow: inset 0 0 2px grey; 
+    border-radius: 1px;
+    cursor: default;
+    opacity: 0;
+}
+
+.pretty-scroll::-webkit-scrollbar-track:hover {
+    background: rgb(237, 237, 237);
+    box-shadow: inset 1px 1px 0 rgb(216, 216, 216);
 }
 
 /* Handle */
 .pretty-scroll::-webkit-scrollbar-thumb {
-    background: rgb(182, 182, 182);
-    box-shadow: inset 0 0 5px rgb(134, 134, 134); 
+    border-radius: 1px;
+    background: rgb(210, 210, 210);
+    box-shadow: inset 1px -1px rgb(195, 195, 195); 
 }
 
 /* Handle on hover */
 .pretty-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgb(156, 156, 156);
+    background: rgb(170, 170, 170);
+    box-shadow: inset 1px -1px rgb(137, 137, 137);
 }
 
 .pretty-scroll::-webkit-scrollbar-thumb:active {
-    background: rgb(123, 123, 123); 
+    background: rgb(132, 132, 132);
+    box-shadow: inset 1px -1px rgb(79, 79, 79);
 }
 
 .unselectable, button {
