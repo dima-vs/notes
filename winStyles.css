@@ -45,6 +45,16 @@
     outline: none;
     box-sizing: border-box;
     margin-bottom: 5%;
+    transition: background-color 0.2s;
+}
+
+.win-entryField:hover {
+    background-color: rgba(0, 0, 0, 0.099);
+}
+
+.win-entryField:focus {
+    transition: background-color 0s;
+    background-color: rgba(0, 0, 0, 0.153);
 }
 
 .win-button {
@@ -71,8 +81,7 @@
     -khtml-user-select: none;    /* Konqueror */
     -moz-user-select: none;      /* Firefox */
     -ms-user-select: none;       /* Internet Explorer/Edge */
-    user-select: none;           /* Non-prefixed version, currently
-                                    not supported by any browser */
+    user-select: none;
 }
 
 .win-selectable_ {
@@ -81,6 +90,5 @@
     -khtml-user-select: all;    /* Konqueror */
     -moz-user-select: all;      /* Firefox */
     -ms-user-select: all;       /* Internet Explorer/Edge */
-    user-select: all;           /* Non-prefixed version, currently
-                                    not supported by any browser */
+    user-select: all;
 }

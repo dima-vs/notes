@@ -2,46 +2,29 @@ body {
     text-align: center;
 }
 
-
-#create {
-    border: none;
-    width: 350px;
-    height: 90px;
-    font-size: 60px;
-    text-indent: 10px;
-    color: rgb(255, 255, 255);
-    background-color: rgb(8, 236, 0);
-    border-bottom: solid 4px black;
-    border-radius: 10px;
-    /* text-shadow: -1px -1px 1px rgb(0, 0, 0),
-    1px 1px 1px rgb(0, 0, 0),
-    1px -1px 1px rgb(0, 0, 0),
-    -1px 1px 1px rgb(0, 0, 0); */
-    text-shadow: 0 0 4px black;
-}
-
-#create:hover {
-    background-color: rgb(11, 205, 5);
-    color: rgb(225, 224, 224);
-}
-
-#create:active {
-    background-color: rgb(5, 155, 0);
-    opacity: 0.9;
-}
-
-
 #search {
     vertical-align: top;
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(0, 0, 0, 0.085);
     padding: 8px 20px;
     padding-right: 36px;
     width: 60%;
-    border: 1px solid rgba(0, 0, 0, 0.185);
+    border: none;
     border-radius: 20px;
     outline: none;
     box-sizing: border-box;
     margin-bottom: 2%;
+    transition: background-color 0.3s;
+    transition-delay: 0.1s;
+}
+
+#search:hover {
+    background-color: rgba(0, 0, 0, 0.137);
+}
+
+#search:focus {
+    transition: background-color 0s;
+    background-color: rgb(255, 255, 255);
+    outline: solid rgb(0, 115, 255) 2px;
 }
 
 .search i {
@@ -51,24 +34,26 @@ body {
     vertical-align: sub;
     border-radius: 30px;
     background-color: rgba(0, 0, 0, 0);
+    transition: background-color 0.3s;
+    transition-delay: 0.1s;
 }
 
-/* .search i:hover {
-    background-color: rgb(226, 226, 226);
-    border-radius: 30px;
-    opacity: 0.7;
-} */
+.search i:hover {
+    background-color: rgba(0, 0, 0, 0.067);
+}
 
-/* .search i:active {
-    background-color: rgba(86, 86, 86, 0.211);
-} */
+.search i:active {
+    transition: 0.2s;
+    background-color: rgba(0, 0, 0, 0.122);
+}
 
 #cancel {
-    font-size: 22px;
+    font-size: 21px;
     padding: 2px 6px;
     position: relative;
     right: 45px;
-    top: 1px;
+    /* top: 1px; */
+    bottom: 1px;
 }
 
 .formatBarImg {
@@ -92,7 +77,7 @@ body {
 }
 
 .formatBar input[type="color"] {
-    -webkit-appearance: none;
+    /* -webkit-appearance: none; */
     position: absolute;
     box-sizing: border-box;
     width: 100%;
@@ -102,7 +87,11 @@ body {
 }
 
 .formatBar input[type="color"]:hover {
-    box-shadow: 0 0 4px rgb(0, 0, 0);
+    /* box-shadow: 0 0 2px rgb(0, 0, 0); */
+    box-shadow: 1px 1px 0 rgb(203, 203, 203), 
+        1px -1px 0 rgb(203, 203, 203), 
+        -1px 1px 0 rgb(203, 203, 203),
+        -1px -1px 0 rgb(203, 203, 203);
 }
 
 .formatBar input[type="color"]::-webkit-color-swatch {
@@ -119,6 +108,52 @@ textarea {
     resize: none;
 }
 
+/* .code-container {
+    overflow: auto;
+} */
+.code-container {
+    position: relative;
+    height: 250px;
+}
+
+.code-container .code {
+    font-family: 'Arial', 'Verdana', sans-serif;
+    outline: none;
+    border: none;
+    box-sizing: border-box;
+    padding: 2%;
+    text-align: left;
+    width: 48%;
+    height: 100%;
+    /* overflow-x: hidden; */
+    overflow: auto;
+    cursor: auto;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.105),
+    -2px 2px 3px rgba(0, 0, 0, 0.105),
+    2px -2px 3px rgba(0, 0, 0, 0.105),
+    -2px -2px 3px rgba(0, 0, 0, 0.105);
+}
+
+.code-container .exclamation {
+    position: absolute;
+    width: 1.5%;
+    bottom: 4px;
+    left: 4px;
+}
+
+.code-container .exclamation-text {
+    position: absolute;
+    bottom: 4px;
+    left: 2.5%;
+    border-radius: 10px;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.105),
+    -1px 1px 2px rgba(0, 0, 0, 0.105),
+    1px -1px 2px rgba(0, 0, 0, 0.105),
+    -1px -1px 2px rgba(0, 0, 0, 0.105);
+    padding: 0.5%;
+    max-width: 30%;
+}
+
 .win-modalWin_ .textarea {
     font-family: 'Arial', 'Verdana', sans-serif;
     outline: none;
@@ -129,6 +164,11 @@ textarea {
     box-sizing: border-box;
     margin-bottom: 5%;
     text-align: left;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin-bottom: 0;
+    max-height: 200px;
+    cursor: auto;
 }
 
 .win-modalWin_ .textarea:focus {
@@ -137,12 +177,12 @@ textarea {
 
 .pretty-scroll::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
 }
 
 /* Track */
 .pretty-scroll::-webkit-scrollbar-track {
     border-radius: 1px;
-    cursor: default;
     opacity: 0;
 }
 
@@ -161,12 +201,12 @@ textarea {
 /* Handle on hover */
 .pretty-scroll::-webkit-scrollbar-thumb:hover {
     background: rgb(170, 170, 170);
-    box-shadow: inset 1px -1px rgb(137, 137, 137);
+    box-shadow: inset 1px -1px rgb(157, 157, 157);
 }
 
 .pretty-scroll::-webkit-scrollbar-thumb:active {
     background: rgb(132, 132, 132);
-    box-shadow: inset 1px -1px rgb(79, 79, 79);
+    box-shadow: inset 1px -1px rgb(115, 115, 115);
 }
 
 .unselectable, button {
@@ -175,8 +215,7 @@ textarea {
     -khtml-user-select: none;    /* Konqueror */
     -moz-user-select: none;      /* Firefox */
     -ms-user-select: none;       /* Internet Explorer/Edge */
-    user-select: none;           /* Non-prefixed version, currently
-                                    not supported by any browser */
+    user-select: none;       
 }
 
 .selectable {
@@ -185,8 +224,7 @@ textarea {
     -khtml-user-select: all;    /* Konqueror */
     -moz-user-select: all;      /* Firefox */
     -ms-user-select: all;       /* Internet Explorer/Edge */
-    user-select: all;           /* Non-prefixed version, currently
-                                    not supported by any browser */
+    user-select: all;
 }
 
 
