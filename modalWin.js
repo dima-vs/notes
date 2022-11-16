@@ -180,20 +180,21 @@ export class ModalWin {
   }
 
   // text block
-  textContent(text, index=1.5) {
+  textContent(text, size=3.5) {
     let textMessage = document.createElement('div');
 
     textMessage.textContent = text;
     textMessage.className = 'win-textMessage';
     
     this.winContent.append(textMessage);
-    this.changeFontSize(textMessage, index);
+    // this.changeFontSize(textMessage, index);
+    textMessage.style.fontSize = size + 'vw';
 
     return textMessage;
   }
 
   // add text input prompt
-  textInput(defaultValue='', placeholder='', index=2.9) {
+  textInput(defaultValue='', placeholder='', size=1.8) {
     let entryField = document.createElement('input');
     entryField.className = 'win-entryField';
     entryField.type = 'text';
@@ -202,13 +203,14 @@ export class ModalWin {
 
     this.winContent.append(entryField);
 
-    this.changeFontSize(entryField, index);
+    // this.changeFontSize(entryField, index);
+    entryField.style.fontSize = size + 'vw';
 
     return entryField;
   }
 
   // create button
-  createButton(text, background, textColor, newContainer, index) {
+  createButton(text, background, textColor, newContainer, size) {
     if (newContainer || !this.buttonsContainer) {
       let buttonsContainer = document.createElement('div');
       
@@ -226,7 +228,8 @@ export class ModalWin {
     
     this.buttonsContainer.append(button);
 
-    this.changeFontSize(button, index);
+    // this.changeFontSize(button, index);
+    button.style.fontSize = size + 'vw';
     return button;
   }
 
@@ -241,24 +244,25 @@ export class ModalWin {
   }
 
   // add a custom element by applying a scaling formula to it
-  addElement(elem, index=2) {
+  addElement(elem, size) {
     elem.addEventListener('input', this.OnResize);
     
     this.winContent.append(elem);
-    this.changeFontSize(elem, index);
+    // this.changeFontSize(elem, index);
+    elem.style.fontSize = size + 'vw';
   }
 
   // text scaling formula
-  changeFontSize(elem, index) {
-    let func = () => {
-      elem.style.fontSize = Math.round(
-        Math.cbrt(this.win.offsetWidth * this.win.offsetHeight) / index
-      ) + 'px';
-    }
+  // changeFontSize(elem, index) {
+  //   let func = () => {
+  //     elem.style.fontSize = Math.round(
+  //       Math.cbrt(this.win.offsetWidth * this.win.offsetHeight) / index
+  //     ) + 'px';
+  //   }
 
-    func();
-    this.functionsOnResize.push(func);
-  }
+  //   func();
+  //   this.functionsOnResize.push(func);
+  // }
   
   // align window and scale all textblocks at the end
   align() {
