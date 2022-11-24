@@ -5,26 +5,44 @@
 <head lang="ru">
   <title>notes</title>
   <meta charset="utf8">
-  <link rel="stylesheet" href="styles.css">
+  <link href="//fonts.googleapis.com/css?family=Google+Sans:400,500&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin,latin-ext,vietnamese" rel="stylesheet" nonce="">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="winStyles.css">
+  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   
   <script src="https://kit.fontawesome.com/3087a50ee2.js" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Varela">
 </head>
 
 <body>
-  <div class="main-content">
+  <div class="search-container">
     <div class="search">
-      <i class="material-icons unselectable" id="create-elem">add</i>
+      <i class="material-icons unselectable" id="menu" data-prompt="Меню">menu</i>
+      <i class="material-icons unselectable" id="create-elem" data-prompt="Создать заметку">add</i>
+      <i class="material-icons unselectable" id="search-icon" data-prompt="Поиск">search</i>
       <input type="text" id="search" placeholder="поиск" autocomplete="off">
-      <i class="material-icons unselectable" id="cancel">cancel</i>
-    </div>
-
-    <div class="notes">
-
+      <i class="material-icons unselectable" id="cancel" data-prompt="Очистить">clear</i>
     </div>
   </div>
+  
+  <div class="menu">
+    <div>
+      <img src="icons/note.png" alt="Заметки">
+      <span class="description">Заметки</span>
+    </div>
 
+    <!-- <div>
+      <img src="icons/delete.png" alt="Корзина">
+      <span class="description">Корзина</span>
+    </div> -->
+  </div>
+  
+  <div class="notes"></div>
+  
   <script src="script.js" type="module"></script>
 </body>
 

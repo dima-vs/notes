@@ -1,12 +1,12 @@
 export class ModalWin {
-  constructor(opacity=0.5, overflow='hidden', priority=true) {
+  constructor(opacity=0.5, priority=true, overflowAfter='auto') {
     if (ModalWin.zIndex === undefined) {
-      ModalWin.zIndex = 2;
+      ModalWin.zIndex = 6;
     } else {
       if (priority) ModalWin.zIndex += 2;
     }
 
-    this.shadow(opacity, overflow);
+    this.shadow(opacity);
     // list of functions to handle resizing of the browser window
     this.functionsOnResize = [];
 
@@ -23,16 +23,18 @@ export class ModalWin {
 
     winContent.className = 'win-content';
     this.winContent = winContent;
+
+    this.overflowAfter = overflowAfter;
   }
 
   // add dark layer
-  shadow(opacity, overflow) {
+  shadow(opacity) {
     let darkLayer = document.createElement('div');
     darkLayer.className = 'win-shadow_';
     darkLayer.style.zIndex = ModalWin.zIndex - 1;
     this.darkLayer = darkLayer;
 
-    document.body.style.overflow = overflow;
+    document.body.style.overflow = 'hidden';
     document.body.prepend(darkLayer);
     
     let i = 0;
@@ -76,6 +78,11 @@ export class ModalWin {
 
     this.functionsOnResize.push(centerAlign);
 
+    // remove browser drag and drop
+    win.ondragstart = function() {
+      return false;
+    };
+
     // drag and drop
     if (dragAndDrop) {
       let mouseDown = false;
@@ -94,8 +101,8 @@ export class ModalWin {
         moveAt(event.pageX, event.pageY);
       
         function moveAt(pageX, pageY) {
-          win.style.left = pageX - shiftX + 'px';
-          win.style.top = pageY - shiftY + 'px';
+          win.style.left = pageX - shiftX - window.pageXOffset + 'px';
+          win.style.top = pageY - shiftY - window.pageYOffset + 'px';
         }
       
         function onMouseMove(event) {
@@ -115,11 +122,11 @@ export class ModalWin {
           mouseDown = false;
           win.onmouseup = null;
 
-          adjustBallCoords();
+          adjustWinCoords();
           document.removeEventListener("mousemove", moveAt);
           document.removeEventListener("mouseup", onMouseUp);
 
-          function adjustBallCoords() {
+          function adjustWinCoords() {
             let coords = win.getBoundingClientRect();
             let left;
             let top;
@@ -159,11 +166,6 @@ export class ModalWin {
           document.body.style.cursor = 'default';
         }
       }
-      
-      // remove browser drag and drop
-      win.ondragstart = function() {
-        return false;
-      };
     }
 
     return win;
@@ -172,7 +174,7 @@ export class ModalWin {
   // remove popup
   delWindow() {
     ModalWin.zIndex -= 2;
-    document.body.style.overflow = 'visible';
+    document.body.style.overflow = this.overflowAfter;
     document.body.classList.remove('win-unselectable_');
     window.removeEventListener('resize', this.OnResize);
     this.darkLayer.remove();
@@ -187,7 +189,6 @@ export class ModalWin {
     textMessage.className = 'win-textMessage';
     
     this.winContent.append(textMessage);
-    // this.changeFontSize(textMessage, index);
     textMessage.style.fontSize = size + 'vw';
 
     return textMessage;

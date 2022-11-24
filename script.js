@@ -1,35 +1,146 @@
 import {ModalWin} from './modalWin.js';
 
+let notesCounter = 1;
+let menu = document.querySelector('.menu');
 
-class Note {
-  constructor() {
-    this.noteContent = {
-      head: '',
-      data: '',
-      img: null,
-      background: null,
+menu.classList.add('unselectable');
+// menu.style.height = document.documentElement.clientHeight + 'px';
+
+function resizeMenu() {
+  let buttonMenu = document.getElementById('menu');
+  let notes = document.querySelector('.notes');
+  let flag = true;
+  let descriptions = menu.getElementsByClassName('description');
+  let increaseTimeOut, showDescriptionId;
+
+  menu.onmouseover = function(event) {
+    if (event.relatedTarget && event.relatedTarget.closest('.menu')) return;
+    increaseTimeOut = setTimeout(() => {
+      increaseMenu();
+    }, 200);
+  }
+
+  menu.onmouseout = function(event) {
+    if (event.relatedTarget && event.relatedTarget.closest('.menu')) return;
+    clearTimeout(increaseTimeOut);
+    
+    if (flag) {
+      decreaseMenu();
     }
   }
 
-  editNote() {
-    const win = new ModalWin(0.5, 'visible');
+  buttonMenu.onclick = function() {
+    if (flag) {
+      increaseMenu();
+
+      flag = false;
+    } else {
+      decreaseMenu();
+
+      flag = true;
+    }
+  }
+
+  function increaseMenu() {
+    showDescriptionId = setTimeout(() => {
+      for (let description of descriptions) {
+        description.style.display = 'inline';
+      }
+    }, 100);
+    
+    menu.style.boxShadow = '2px 10px 10px rgba(0, 0, 0, 0.2)';
+    menu.style.width = '250px';
+    notes.style.marginLeft = '280px';
+    
+  }
+
+  function decreaseMenu() {
+    clearTimeout(showDescriptionId);
+    for (let description of descriptions) {
+      description.style.display = '';
+    }
+    
+    menu.style.boxShadow = '';
+    menu.style.width = '';
+    notes.style.marginLeft = '';
+  }
+}
+
+resizeMenu();
+
+class Note {
+  constructor(note, notesCounter) {
+    this.noteElem = note;
+    this.noteImg = null;
+    this.notesCounter = notesCounter;
+  }
+
+  setImg_(img) {
+    if (img) {
+      let noteImg = this.noteElem.querySelector('.note-img');
+
+      if (noteImg) {
+        noteImg.replaceWith(img);
+      } else {
+        this.noteElem.prepend(img);
+      }
+      
+      img.className = 'note-img';
+    }
+  }
+
+  setNoteContent(title, data, img) {
+    let note = this.noteElem;
+    let title_ = note.querySelector('.note-title');
+
+    if (title) {
+      title_.textContent = title;
+    } else {
+      title_.textContent = 'Заметка' + this.notesCounter;
+    }
+
+    let noteData = note.querySelector('.note-data');
+    
+    noteData.innerHTML = data;
+    this.checkHeight(noteData);    
+    this.setImg_(img);
+  }
+
+  checkHeight(elem) {
+    let overflow = this.noteElem.querySelector('.note-overflow');
+
+    if (elem.offsetHeight >= 500) {
+      overflow.textContent = '...';
+    } else {
+      overflow.textContent = '';
+    }
+  }
+
+  editNote(resolve) {
+    const win = new ModalWin(0.5);
   
     win.createWindow();
-    win.textContent('Создать заметку');
+    
+    if (resolve) {
+      win.textContent('Создать заметку');
+    } else {
+      win.textContent('Редактировать заметку');
+    }
   
-    let head = win.textInput(this.noteContent.head, 'Введите заголовок');
+    let title = win.textInput(this.noteElem.querySelector('.note-title').textContent, 'Введите заголовок');
     let noteData = document.createElement('div');
   
+    title.maxLength = '100';
     win.addElement(noteData, 1.2);
   
     let textArea = document.createElement('div');
     
     textArea.contentEditable = true;
-    textArea.innerHTML = this.noteContent.data;
+    textArea.innerHTML = this.noteElem.querySelector('.note-data').innerHTML;
     textArea.className = 'textarea pretty-scroll';
   
     // add placeholder
-    const placeholder = '<span id="placeholder">Заметка...</span>';
+    const placeholder = '<span class="placeholder">Заметка...</span>';
   
     textArea.innerHTML === '' && (textArea.innerHTML = placeholder);
   
@@ -55,33 +166,34 @@ class Note {
     `;
   
     let formatBarFuncs = new FormatBar(this, textArea, 'black', 'black');
-    let funcNames = ['bold', 'italic', 'underline', 'link', 'code', 'image', 'letterColor', 'backgroundColor', 'clear'];
-  
-    for (let name of funcNames) {
-      let container = document.createElement('span');
+    let funcNames = {
+      'bold': 'Жирный', 'italic': 'Курсив', 'underline': 'Подчеркнутый', 
+      'link': 'Гиперссылка', 'code': 'Встроить код', 'image': 'Добавить изображение',
+      'letterColor': 'Цвет шрифта', 'backgroundColor': 'Цвет выделения текста', 'clear': 'Очистить'
+    };
+
+    for (let name of Object.keys(funcNames)) {
+      let container = document.createElement('div');
       let img = document.createElement('img');
       
       container.style.position = 'relative';
+      img.setAttribute('data-prompt', funcNames[name]);
   
       img.src = 'formatIcons/' + name + '.png';
-      img.classList.add('formatBarImg');
+      img.classList.add('format-bar-img');
   
       img.ondragstart = function() {
         return false;
       };
   
-      container.classList.add('formatBar');
+      container.classList.add('format-bar-container');
       container.classList.add('unselectable');
       container.append(img);
   
       formatBar.append(container);
   
-      container.onmouseover = function() {
-        container.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
-      }
-  
       container.onclick = function(event) {
-        if (event.target != img) return;
+        if (event.target != img && event.target != container) return;
   
         let result = formatBarFuncs[name](container);
   
@@ -146,40 +258,486 @@ class Note {
     let cancelButton = win.cancelButton('отмена');
     
     submitButton.style.padding = '0.7% 6% 0.7%';
+
+    submitButton.onclick = () => {
+      for (let elem of textArea.querySelectorAll('*')) {
+        if (elem.innerHTML.trim() == '<br>') {
+          elem.remove();
+        }
+      }
+
+      this.setNoteContent(title.value.trim(), textArea.innerHTML, this.noteImg);
+      win.delWindow();
+
+      if (resolve) {
+        resolve(true);
+      }
+    }
     
-    cancelButton.onclick = () => win.delWindow();
+    cancelButton.onclick = () => {
+      this.noteImg = this.noteElem.querySelector('.note-img');
+      win.delWindow();
+
+      if (resolve) {
+        resolve(false);
+      }
+    }
   
     win.align();
+  }
+
+  delNote() {
+    let win = new ModalWin();
+
+    win.createWindow(30, false, 'white', true);
+    win.textContent('Удалить заметку?', 2);
+    win.winContent.classList.add('unselectable');
+
+    let submitButton = win.submitButton('да');
+
+    submitButton.style.padding = ' 0.7% 6% 0.7%';
+    win.winContent.style.marginBottom = '1px';
+    win.align();
+
+    let noteElem = this.noteElem;
+
+    submitButton.onclick = function() {
+      noteElem.remove();
+      notesCounter -= 1;
+      win.delWindow();
+    }
+
+    win.darkLayer.onclick = function() {
+      win.delWindow();
+    }
   }
 }
 
 
-
-
-
-
-let elemCounter = 0;
-let elements = {};
-
-
-function createElement(head, text, url) {
+function createNote() {
   let note = document.createElement('div');
+  let title = document.createElement('div');
+  let data = document.createElement('div');
+  let overflow = document.createElement('div');
 
-  note.classList.add('notes');
+  overflow.className = 'note-overflow';
+  note.classList.add('note');
+  note.style.backgroundColor = 'rgb(255,255,255)';
+  title.classList.add('note-title');
+  data.classList.add('note-data');
 
+  note.append(title);
+  note.append(data);
+
+  let controlPanel = document.createElement('div');
+  let important = document.createElement('img');
+  let importantMark = document.createElement('img');
+
+  important.src = 'icons/important-light.png';
+  important.setAttribute('data-prompt', 'Отметить как важная');
+
+  importantMark.src = 'icons/important.png';
+
+  controlPanel.className = 'note-control unselectable';
+  important.className = 'note-control important';
+  importantMark.className = 'note-control important-mark';
+  importantMark.style.display = 'none';
+
+  note.querySelector('.note-title').before(important);
+  note.append(importantMark);
+  note.append(overflow);
+
+  let editButton = document.createElement('img');
+
+  editButton.setAttribute('data-prompt', 'Редактировать заметку');
+  editButton.src = 'icons/note-edit.png';
+  editButton.className = 'note-edit-button';
+
+  controlPanel.append(editButton);
+
+  let delNote = document.createElement('img');
+
+  delNote.setAttribute('data-prompt', 'Удалить заметку');
+  delNote.src = 'icons/delete.png';
+  delNote.className = 'note-del-button';
+
+  controlPanel.append(delNote);
+
+  let colorPicker = document.createElement('img');
+
+  colorPicker.setAttribute('data-prompt', 'Изменить фон');
+  colorPicker.src = 'icons/color-palette.png';
+  colorPicker.className = 'note-color-button';
+
+  controlPanel.append(colorPicker);
+  note.append(controlPanel);
+
+  return note;
+}
+
+function showNote(note) {
+  let title = note.querySelector('.note-title');
+  let data = note.querySelector('.note-data');
+  let img = note.querySelector('.note-img');
+  let background = note.style.backgroundColor;
+
+  let win = new ModalWin();
+  let modalWin = win.createWindow(80, false, background);
+  let shadow = win.darkLayer;
+
+  note.style.visibility = 'hidden';
+
+  modalWin.style.overflow = 'auto';
+  modalWin.style.maxHeight = window.innerHeight * 0.9 + 'px';
+  modalWin.classList.add('show-note');
+  modalWin.classList.add('unselectable');
+
+  let title_ = win.textContent(title.textContent);
+  title_.textContent = title.textContent;
+
+  if (img) {
+    let cloneImg = img.cloneNode(true);
+    let container = document.createElement('div');
+
+    // cloneImg.removeAttribute('data-uploaded');
+    container.className = 'show-note-container';
+    container.style.height = img.offsetHeight;
+    container.append(cloneImg);
+    container.append(title_);
+    modalWin.prepend(container);
+  }
+
+  let cloneData = data.cloneNode(true);
+
+  win.winContent.style.overflowX = 'hidden';
+  cloneData.style.maxHeight = 'none';
+  win.addElement(cloneData, 1.7);
+
+  shadow.onclick = function() {
+    win.delWindow();
+    note.style.visibility = '';
+  }
+
+  win.align();
 }
 
 let cancel = document.getElementById('cancel');
 let createElem = document.getElementById('create-elem');
 
-cancel.onclick = () => document.getElementById('search').value = '';
+let search = document.getElementById('search');
+let notes = document.querySelector('.notes');
 
+search.onfocus = function() {
+  for (let note of notes.children) {
+    note.style.display = 'none';
+  }
+}
+
+search.oninput = function() {
+  let value = search.value;
+
+  for (let note of notes.children) {
+    let title = note.querySelector('.note-title');
+
+    if (title.textContent.toLowerCase().includes(value.toLowerCase().trim()) && value.trim()) {
+      note.style.display = '';
+    } else {
+      note.style.display = 'none';
+    }
+  }
+}
+
+search.onblur = function() {
+  if (!search.value.trim()) {
+    search.value = '';
+
+    for (let note of notes.children) {
+      note.style.display = '';
+    }
+  }
+}
+
+cancel.addEventListener('click', function() {
+  search.value = '';
+
+  for (let note of notes.children) {
+    note.style.display = '';
+  }
+});
 
 createElem.onclick = function() {
-  let noteElem = new Note();
+  let noteElem = createNote();
+  let note = new Note(noteElem, notesCounter);
+  let promise = new Promise((resolve) => note.editNote(resolve));
 
-  noteElem.editNote();
+  noteElem.setAttribute('data-important', false);
+  noteElem.noteControl = note;
+
+  promise.then(
+    result => {
+      if (result) {
+        notesCounter += 1;
+        document.querySelector('.notes').append(noteElem);
+        note.checkHeight(noteElem.querySelector('.note-data'));
+      }
+    }
+  );
 }
+
+notesEventHandler();
+
+function notesEventHandler() {
+  let notes = document.querySelector('.notes');
+
+  notes.addEventListener('click', function(event) {
+    let elem = event.target;
+    let note = elem.closest('.note');
+
+    if (!note) {
+      return;
+    }
+    if (elem.classList.contains('important')) {
+      let important = note.querySelector('.important');
+
+      if (note.getAttribute('data-important') == 'true') {
+        note.setAttribute('data-important', false);
+
+        important.src = 'icons/important-light.png';
+        important.setAttribute('data-prompt', 'Отметить как важная');
+      } else {
+        note.setAttribute('data-important', true);
+
+        important.src = 'icons/important-dark.png';
+        important.setAttribute('data-prompt', 'Убрать отметку');
+      }
+    } else if (elem.classList.contains('note-edit-button')) {
+      note.noteControl.editNote();
+    } else if (elem.classList.contains('note-del-button')) {
+      note.noteControl.delNote();
+    } else if (elem.classList.contains('note-color-button')) {
+      colorPickerPanel(note);
+    } else if (elem.closest('.note')) {
+      showNote(elem.closest('.note'));
+    }
+  })
+
+  notes.addEventListener('mouseover', function(event) {
+    let elem = event.target;
+    let note = elem.closest('.note');
+
+    if (!note) {
+      return;
+    }
+
+    let importantMark = note.querySelector('.important-mark');
+
+    if (note.dataset.important === 'true') {
+      importantMark.style.display = 'none';
+    }
+    importantMark.style.opacity = '0';
+
+    for (let elem of note.querySelectorAll('.note-control:not(.important-mark)')) {
+      elem.style.opacity = '1';
+    }
+  })
+
+  notes.addEventListener('mouseout', function(event) {
+    let elem = event.target;
+    let note = elem.closest('.note');
+
+    if (!note) {
+      return;
+    }
+
+    let importantMark = note.querySelector('.important-mark');
+
+    if (note.dataset.important === 'true') {
+      importantMark.style.display = '';
+    }
+    importantMark.style.opacity = '';
+
+    for (let elem of note.querySelectorAll('.note-control:not(.important-mark)')) {
+      elem.style.opacity = '0';
+    }
+  })
+
+  function colorPickerPanel(note) {
+    let panel = document.createElement('div');
+    let colors = {
+      'rgb(255,255,255)': 'Белый', 'rgb(255,112,112)': 'Красный', 'rgb(251,188,4)': 'Оранжевый', 
+      'rgb(254,251,122)': 'Желтый', 'rgb(158,255,150)': 'Зеленый', 'rgb(168,188,255)': 'Синий',
+      'rgb(175,153,255)': 'Фиолетовый', 'rgb(255,179,255)': 'Розовый', 'rgb(220,179,121)': 'Коричневый',
+      'rgb(220,220,220)': 'Серый',
+    }
+
+    panel.className = 'note-color-picker';
+    
+    window.addEventListener('resize', onResize);
+    onResize();
+
+    function onResize() {
+      let coords = getCoords(note);
+      
+      panel.style.top = coords.bottom + 'px';
+      panel.style.left = coords.left + coords.width / 2 + 'px';
+    }
+
+    for (let color of Object.keys(colors)) {
+      let colorElem = document.createElement('div');
+
+      if (color == note.style.backgroundColor.replaceAll(' ', '')) {
+        colorElem.classList.add('selected');
+      }
+      colorElem.classList.add('note-color');
+      colorElem.style.backgroundColor = color;
+      colorElem.setAttribute('data-prompt', colors[color]);
+      panel.append(colorElem);
+    }
+
+    notes.append(panel);
+    panel.onclick = function(event) {
+      let elem = event.target;
+
+      if (elem.classList.contains('note-color')) {
+        let selectedElem = panel.querySelector('.note-color.selected');
+
+        selectedElem.classList.remove('selected');
+        elem.classList.add('selected');
+        note.style.backgroundColor = elem.style.backgroundColor;
+      }
+    }
+
+    setTimeout(() => {
+      document.addEventListener('click', onClick);
+    }, 0);
+
+    function onClick(event) {
+      if (!event.target.closest('.note-color-picker')) {
+        panel.remove();
+        document.removeEventListener('click', onClick);
+        window.removeEventListener('resize', onResize);
+      }
+    }
+  }
+}
+
+showPrompt();
+
+function showPrompt() {
+  let promptElem = document.createElement('div');
+  let timerId;
+  let delayId;
+  let flagDelay = true;
+
+  promptElem.id = 'prompt';
+  promptElem.style.display = 'none';
+
+  function onMouseDown(event) {
+    promptElem.style.display = 'none';
+    event.target.removeEventListener('mousedown', onMouseDown);
+  }
+
+  document.body.append(promptElem);
+  document.addEventListener('mouseover', function(event) {
+    let elem = event.target;
+
+    if (elem.hasAttribute('data-prompt')) {
+      function showPrompt_() {
+        promptElem.style.display = '';
+        elem.addEventListener('mousedown', onMouseDown);
+
+        let coords = elem.getBoundingClientRect();
+        let coordsRelToDocument = getCoords(elem);
+
+        promptElem.style.top = coordsRelToDocument.bottom + 10 + 'px';
+        promptElem.style.left = coordsRelToDocument.left + 'px';
+        promptElem.style.transform = 'translate(0px, 0px)';
+
+        if (coords.top > document.documentElement.clientHeight - coords.height - 30) {
+          promptElem.style.top = coordsRelToDocument.top - coords.height - 10 + 'px';
+        }
+
+        if (coords.left > promptElem.offsetWidth / 2 - 30) {
+          promptElem.style.left = coordsRelToDocument.left + coords.width / 2 + 'px';
+          promptElem.style.transform = 'translate(-50%, 0px)';
+        }
+        
+        if (coords.left > document.documentElement.clientWidth - promptElem.offsetWidth - 30) {
+          promptElem.style.left = coordsRelToDocument.right + 'px';
+          promptElem.style.transform = 'translate(-100%, 0px)';
+        }
+        promptElem.textContent = elem.getAttribute('data-prompt');
+      }
+
+      if (flagDelay) {
+        showPrompt_();
+
+        setTimeout(() => {
+          clearTimeout(delayId);
+          flagDelay = true;
+        }, 0);
+      } else {
+        timerId = setTimeout(() => {
+          showPrompt_();
+
+          setTimeout(() => {
+            clearTimeout(delayId);
+            flagDelay = true;
+          }, 0);
+        }, 400);
+      }
+    }
+  });
+
+  document.addEventListener('mouseout', function(event) {
+    let elem = event.relatedTarget;
+
+    clearTimeout(timerId);
+    promptElem.style.display = 'none';
+    if (elem && elem.removeEventListener) {
+      elem.removeEventListener('mousedown', onMouseDown);
+    }
+
+    clearTimeout(delayId);
+    delayId = setTimeout(() => {
+      flagDelay = false;
+    }, 200);
+  });
+}
+
+
+document.addEventListener('paste', function(event) {
+  event.preventDefault();
+  document.execCommand('inserttext', false, event.clipboardData.getData('text/plain'));
+});
+
+window.addEventListener('scroll', function() {
+  // document.getElementById('showScroll').innerHTML = pageYOffset + 'px';
+  let searchPanel = this.document.querySelector('.search-container');
+  let panelHeight = searchPanel.offsetHeight;
+
+  if (pageYOffset >= panelHeight) {
+    searchPanel.style.position = 'fixed';
+    searchPanel.style.boxShadow = `0px 2px 4px rgba(0, 0, 0, 0.2)`;
+
+    if (pageYOffset >= panelHeight + 40) {
+      searchPanel.style.transition = 'transform .2s';
+      searchPanel.style.transform = `translateY(0px)`;
+    } else {
+      searchPanel.style.transform = `translateY(-${panelHeight}px)`;
+    }
+  } else {
+    searchPanel.style.transition = 'transform .2s';
+    searchPanel.style.transform = `translateY(-${panelHeight}px)`;
+    
+    setTimeout(() => {
+      searchPanel.style.position = '';
+      searchPanel.style.transition = 'transform 0s';
+      searchPanel.style.transform = '';
+      searchPanel.style.boxShadow = '';
+    }, 20);
+  }
+});
 
 class FormatBar {
   constructor(note, textArea, textColor, backgroundColor) {
@@ -220,7 +778,7 @@ class FormatBar {
   }
 
   link() {
-   let win = new ModalWin();
+   let win = new ModalWin(0.5, true, 'hidden');
 
     win.createWindow(30, false, 'white', true);
 
@@ -265,7 +823,7 @@ class FormatBar {
   }
 
   code() {
-    let win = new ModalWin();
+    let win = new ModalWin(0.5, true, 'hidden');
     let textArea = this.textArea;
 
     win.createWindow(60, false, 'white', true);
@@ -355,7 +913,7 @@ class FormatBar {
       if (code.textContent) {
         let codeElem = document.createElement('div');
 
-        if (textArea.querySelector('#placeholder')) {
+        if (textArea.querySelector('.placeholder')) {
           textArea.innerHTML = '';
         }
 
@@ -385,7 +943,7 @@ class FormatBar {
   }
 
   image() {
-    let win = new ModalWin();
+    let win = new ModalWin(0.5, true, 'hidden');
 
     win.winContent.classList.add('unselectable');
     win.createWindow(30, false, 'white', true);
@@ -435,6 +993,7 @@ class FormatBar {
       let editButton = document.createElement('img');
 
       editButton.src = 'icons/edit.png';
+      editButton.setAttribute('data-prompt', 'Редактировать изображение');
       editButton.className = 'edit-button';
 
       return editButton;
@@ -443,20 +1002,24 @@ class FormatBar {
     function editPanel(img) {
       let editImg = new EditImg(img);
       let panel = document.createElement('div');
-      let funcs = ['opacity', 'brightness', 'blur', 'invert', 'shadow'];
+      // let funcs = ['opacity', 'brightness', 'blur', 'invert', 'shadow'];
+      let funcs = {'opacity': 'Прозрачность', 'brightness': 'Яркость',
+      'blur': 'Размытие', 'invert': 'Инверсия цветов', 'shadow': 'Тень'};
 
       panel.className = 'edit-panel';
 
-      for (let func of funcs) {
+      for (let func of Object.keys(funcs)) {
         let container = document.createElement('div');
         let icon = document.createElement('img');
         let range = editImg[func]();
 
-        if (img.panelValues) {
-          range.value = img.panelValues[func];
-          editImg.values[func] = img.panelValues[func];
+        let panelValues = JSON.parse(img.getAttribute('panel-values'));
+        if (panelValues) {
+          range.value = panelValues[func];
+          editImg.values[func] = panelValues[func];
         }
 
+        icon.setAttribute('data-prompt', funcs[func]);
         icon.src =  'editImgIcons/' + func + '.png';
         icon.style.width = '5%';
         container.append(icon);
@@ -480,7 +1043,8 @@ class FormatBar {
           editImg.values[elem.id] = elem.value;
 
           img.style.filter = editImg.formatString();
-          img.panelValues = editImg.values;
+          // img.panelValues = editImg.values;
+          img.setAttribute('panel-values', JSON.stringify(editImg.values));
         }
       }
 
@@ -688,7 +1252,9 @@ class FormatBar {
       let img = uploadedImg.querySelector('.img');
 
       if (img) {
-        note.noteContent.img = img;
+        img.style.maxWidth = '';
+        img.style.maxHeight = '';
+        note.noteImg = img;
         
         win.delWindow();
       } else {
@@ -714,12 +1280,17 @@ class FormatBar {
 
     win.align();
 
-    let savedImg = note.noteContent.img;
+    let savedImg = note.noteImg;
     
     if (savedImg) {
+      savedImg = savedImg.cloneNode(true);
       if (!savedImg.getAttribute('data-uploaded')) {
         url.value = savedImg.src;
       }
+
+      savedImg.classList.add('img');
+      savedImg.style.maxWidth = '90%';
+      savedImg.style.maxHeight = '290px';
       
       uploadedImg.innerHTML = '';
       uploadedImg.style.padding = '2%';
@@ -833,7 +1404,9 @@ function getCoords(elem) {
     top: box.top + window.pageYOffset,
     right: box.right + window.pageXOffset,
     bottom: box.bottom + window.pageYOffset,
-    left: box.left + window.pageXOffset
+    left: box.left + window.pageXOffset,
+    width: box.width,
+    height: box.height,
   };
 }
 
@@ -966,7 +1539,7 @@ class EditImg {
   }
 
   shadow() {
-    let range = this.createElem_(0, 50, 0.1, 0.1);
+    let range = this.createElem_(0, 30, 0.1, 0.1);
     
     range.id = 'shadow';
     return range;
